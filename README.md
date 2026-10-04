@@ -50,6 +50,36 @@ flowchart TB
     Git -->|push to main\nGitHub Actions| WSprod
 ```
 
+## Pipeline execution graph
+
+```mermaid
+flowchart LR
+    envPrep([envPrep]) --> ingestCustomers([ingestCustomers])
+    envPrep --> ingestOrders([ingestOrders])
+    envPrep --> ingestProducts([ingestProducts])
+    envPrep --> ingestSales([ingestSales])
+
+    ingestCustomers --> transformSales([transformSales])
+    ingestOrders --> transformSales
+    ingestProducts --> transformSales
+    ingestSales --> transformSales
+
+    transformSales --> loadSales([loadSales])
+    loadSales --> grants([grants])
+
+    style envPrep fill:#1a3a1a,stroke:#2ea043,color:#fff
+    style ingestCustomers fill:#1a3a1a,stroke:#2ea043,color:#fff
+    style ingestOrders fill:#1a3a1a,stroke:#2ea043,color:#fff
+    style ingestProducts fill:#1a3a1a,stroke:#2ea043,color:#fff
+    style ingestSales fill:#1a3a1a,stroke:#2ea043,color:#fff
+    style transformSales fill:#1a3a1a,stroke:#2ea043,color:#fff
+    style loadSales fill:#1a3a1a,stroke:#2ea043,color:#fff
+    style grants fill:#1a3a1a,stroke:#2ea043,color:#fff
+```
+
+Each task runs serverless; the four ingests execute in parallel once `envPrep`
+completes, and `transformSales` waits on all four before joining the sources.
+
 ## Hard constraints from the brief
 
 - **Managed Identity only** for the raw-layer connection — no service principal, no Key
