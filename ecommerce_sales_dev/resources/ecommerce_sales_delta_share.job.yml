@@ -1,0 +1,8 @@
+resources:
+  jobs:
+    ecommerce_sales_delta_share:
+      name: ecommerce_sales_delta_share
+      tasks:
+        - task_key: deltaShare
+          notebook_task:
+            notebook_path: ../src/05_deltaShare.sql

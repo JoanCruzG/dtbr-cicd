@@ -1,0 +1,6 @@
+resources:
+  dashboards:
+    dq_dashboard:
+      display_name: DQ Dashboard
+      file_path: ../src/dq_dashboard.lvdash.json
+      warehouse_id: ${var.warehouse_id}
