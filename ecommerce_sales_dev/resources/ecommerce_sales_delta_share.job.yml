@@ -6,3 +6,5 @@ resources:
         - task_key: deltaShare
           notebook_task:
             notebook_path: ../src/05_deltaShare.sql
+            base_parameters:
+              catalog: ${var.catalog}
