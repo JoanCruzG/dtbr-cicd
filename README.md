@@ -60,7 +60,7 @@ flowchart TB
 - **PySpark, not Spark SQL** for the ETL logic — every transformation (extract, join,
   filter, aggregate) uses the DataFrame API. `spark.sql(...)` is used only for DDL
   (`CREATE CATALOG`, `CREATE TABLE`, `GRANT`), which has no DataFrame equivalent.
-- **At least two source datasets** — `ecommerce_sales`, `customer_master`,
+- **Four raw datasets** — `ecommerce_sales`, `customer_master`,
   `order_items`, `product_catalog` are joined in Silver.
 - **CI/CD via GitHub Actions**, deploying dev → prod through a Databricks Asset
   Bundle.
@@ -88,8 +88,8 @@ idempotent `MERGE`, so re-running a feature branch's pipeline is always safe.
 
 ## Storage layout
 
-Each storage account has five containers: `raw`, `bronze`, `silver`, `gold`,
-`metastore` (dev also has `checkpoints`, for Auto Loader state). One Unity
+Each storage account has six containers: `raw`, `bronze`, `silver`, `gold`,
+`metastore`, `checkpoints` (for Auto Loader state). One Unity
 Catalog External Location covers each container. The catalog's own managed
 storage lives in its own subfolder of `metastore/` (`metastore/development/`,
 `metastore/production/`) — never the container root, since Unity Catalog does
@@ -171,3 +171,32 @@ job — nothing in development is ever shared externally.
 > pipeline actually runs; see `evidencias/` for the working Action.
 
 ## Repository structure
+
+```text
+.
+├── datasets/              raw source files
+├── dashboard/             Lakeview JSON+PNG, Power BI PBIX+PNG, Delta Share link
+├── reversion/             reversion.sql
+├── .github/
+│   └── workflows/
+│       └── deploy.yml     dev -> prod CI/CD
+├── seguridad/
+│   └── 04_grants.sql
+├── prepAmb/
+│   └── 00_envPrep.sql
+├── proceso/
+│   └── ecommerce_sales_dev/   the Databricks Asset Bundle
+│       ├── databricks.yml
+│       ├── resources/
+│       │   ├── ecommerce_sales_pipeline.job.yml
+│       │   ├── ecommerce_sales_delta_share.job.yml
+│       │   └── dq_dashboard.dashboard.yml
+│       └── src/                9 notebooks + dq_dashboard.lvdash.json
+├── certificaciones/
+├── evidencias/
+└── readme.md
+```
+
+## Author
+
+Built by Joan Cruz as the final project for the Databricks course.
