@@ -1,0 +1,48 @@
+# This is a Declarative Automation Bundle definition for ecommerce_sales_dev.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+
+bundle:
+  name: ecommerce_sales_dev
+  uuid: faad3a4c-c05f-452a-9196-1c1c15d6480d
+
+include:
+  - resources/*.yml
+
+variables:
+  storageName:
+    description: ADLS storage account for this environment
+  credentialName:
+    description: Storage credential this environment uses
+  externalLocationName:
+    description: External Location prefix for this environment
+  catalog:
+    description: Unity Catalog name for this run
+  warehouse_id:
+    description: SQL warehouse that runs the dashboard's queries
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-7405614858552758.18.azuredatabricks.net
+    variables:
+      storageName: adlsjscgdevelopment
+      credentialName: cred_adls_dev
+      externalLocationName: ext_loc_development
+      catalog: development
+      warehouse_id: 0b167df1c2a3917a
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-7405608528456090.10.azuredatabricks.net
+      root_path: /Workspace/Users/joanscruzgarcia@gmail.com/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      storageName: adlsjscgproduction
+      credentialName: cred_adls_prod
+      externalLocationName: ext_loc_production
+      catalog: production
+      warehouse_id: ee1335f8d38fdb83
+    permissions:
+      - user_name: joanscruzgarcia@gmail.com
+        level: CAN_MANAGE

@@ -1,0 +1,29 @@
+name: Deploy Bundle
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ecommerce_sales_dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: databricks/setup-cli@main
+
+      - name: Point dashboard to prod
+        run: |
+          sed -i 's/development\./production./g' src/dq_dashboard.lvdash.json
+          grep -q "production\." src/dq_dashboard.lvdash.json || { echo "Replacement didn't happen"; exit 1; }
+
+      - name: Deploy to prod and run
+        env:
+          DATABRICKS_HOST: ${{ secrets.PROD_DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.PROD_DATABRICKS_TOKEN }}
+        run: |
+          databricks bundle deploy -t prod
+          databricks bundle run -t prod ecommerce_sales_pipeline
