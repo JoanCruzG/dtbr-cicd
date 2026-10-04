@@ -1,0 +1,634 @@
+{
+  "datasets": [
+    {
+      "name": "f51ad601",
+      "displayName": "bronze_dq_issues_log",
+      "queryLines": [
+        "SELECT check_type\r\n",
+        "    ,source_file\r\n",
+        "    ,source_table\r\n",
+        "    ,file_path\r\n",
+        "    ,CAST(detected_at AS DATE) AS detected_at\r\n",
+        "    ,COUNT(*) AS issues_detected\r\n",
+        "FROM development.bronze.dq_issues_log\r\n",
+        "GROUP BY check_type\r\n",
+        "    ,source_file\r\n",
+        "    ,source_table\r\n",
+        "    ,file_path\r\n",
+        "    ,CAST(detected_at AS DATE)\r\n",
+        "ORDER BY CAST(detected_at AS DATE)\r\n",
+        "    ,check_type"
+      ]
+    },
+    {
+      "name": "32908228",
+      "displayName": "silver_dq_issues_log",
+      "queryLines": [
+        "SELECT check_type\r\n",
+        "    ,source_file\r\n",
+        "    ,source_table\r\n",
+        "    ,file_path\r\n",
+        "    ,CAST(detected_at AS DATE) AS detected_at\r\n",
+        "    ,COUNT(*) AS issues_detected\r\n",
+        "FROM development.silver.dq_issues_log\r\n",
+        "GROUP BY check_type\r\n",
+        "    ,source_file\r\n",
+        "    ,source_table\r\n",
+        "    ,file_path\r\n",
+        "    ,CAST(detected_at AS DATE)\r\n",
+        "ORDER BY CAST(detected_at AS DATE)\r\n",
+        "    ,check_type"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "c67a8b4a",
+      "displayName": "Bronze DQ",
+      "layout": [
+        {
+          "widget": {
+            "name": "data-quality-issues-detected-bronze-ingestion-date",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "f51ad601",
+                  "fields": [
+                    {
+                      "name": "daily(detected_at)",
+                      "expression": "DATE_TRUNC(\"DAY\", `detected_at`)"
+                    },
+                    {
+                      "name": "sum(issues_detected)",
+                      "expression": "SUM(`issues_detected`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Data Quality Issues Detected in Bronze Ingestion per Date",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "daily(detected_at)",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(issues_detected)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 5,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "data-quality-issues-detected-bronze-ingestion-type",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "f51ad601",
+                  "fields": [
+                    {
+                      "name": "sum(issues_detected)",
+                      "expression": "SUM(`issues_detected`)"
+                    },
+                    {
+                      "name": "check_type",
+                      "expression": "`check_type`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Data Quality Issues Detected in Bronze Ingestion per Type",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "sum(issues_detected)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "check_type",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                },
+                "extra": [
+                  {
+                    "fieldName": "check_type"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 1,
+            "width": 4,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "3932d34c",
+            "queries": [
+              {
+                "name": "dashboards/01f1bf4db246155d96e04c6b8706c31e/datasets/01f1bf4dbd031e8ea1b265ed36f26342_monthly(detected_at)",
+                "query": {
+                  "datasetName": "f51ad601",
+                  "fields": [
+                    {
+                      "name": "monthly(detected_at)",
+                      "expression": "DATE_TRUNC(\"MONTH\", `detected_at`)"
+                    },
+                    {
+                      "name": "monthly(detected_at)_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "monthly(detected_at)",
+                    "displayName": "MONTHLY(detected_at)",
+                    "queryName": "dashboards/01f1bf4db246155d96e04c6b8706c31e/datasets/01f1bf4dbd031e8ea1b265ed36f26342_monthly(detected_at)"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 5,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "16797dc5",
+            "queries": [
+              {
+                "name": "dashboards/01f1bf4db246155d96e04c6b8706c31e/datasets/01f1bf4dbd031e8ea1b265ed36f26342_check_type",
+                "query": {
+                  "datasetName": "f51ad601",
+                  "fields": [
+                    {
+                      "name": "check_type",
+                      "expression": "`check_type`"
+                    },
+                    {
+                      "name": "check_type_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "check_type",
+                    "queryName": "dashboards/01f1bf4db246155d96e04c6b8706c31e/datasets/01f1bf4dbd031e8ea1b265ed36f26342_check_type"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 0,
+            "width": 4,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "6299534d",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "f51ad601",
+                  "fields": [
+                    {
+                      "name": "check_type",
+                      "expression": "`check_type`"
+                    },
+                    {
+                      "name": "source_file",
+                      "expression": "`source_file`"
+                    },
+                    {
+                      "name": "source_table",
+                      "expression": "`source_table`"
+                    },
+                    {
+                      "name": "detected_at",
+                      "expression": "`detected_at`"
+                    },
+                    {
+                      "name": "issues_detected",
+                      "expression": "`issues_detected`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "check_type"
+                  },
+                  {
+                    "fieldName": "source_file"
+                  },
+                  {
+                    "fieldName": "source_table"
+                  },
+                  {
+                    "fieldName": "detected_at"
+                  },
+                  {
+                    "fieldName": "issues_detected"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 9,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "b751f2d3",
+      "displayName": "Silver DQ",
+      "layout": [
+        {
+          "widget": {
+            "name": "cb987ffd",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "32908228",
+                  "fields": [
+                    {
+                      "name": "daily(detected_at)",
+                      "expression": "DATE_TRUNC(\"DAY\", `detected_at`)"
+                    },
+                    {
+                      "name": "sum(issues_detected)",
+                      "expression": "SUM(`issues_detected`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Data Quality Issues Detected in Silver Transformation per Date",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "daily(detected_at)",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(issues_detected)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 1,
+            "width": 5,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "67e124c9",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "32908228",
+                  "fields": [
+                    {
+                      "name": "sum(issues_detected)",
+                      "expression": "SUM(`issues_detected`)"
+                    },
+                    {
+                      "name": "check_type",
+                      "expression": "`check_type`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Data Quality Issues Detected in Silver Transformation per Type",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "sum(issues_detected)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "check_type",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                },
+                "extra": [
+                  {
+                    "fieldName": "check_type"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 1,
+            "width": 4,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "1926b67c",
+            "queries": [
+              {
+                "name": "dashboards/01f1bf4db246155d96e04c6b8706c31e/datasets/01f1bf4fd15415ac8d3779f272c6143c_monthly(detected_at)",
+                "query": {
+                  "datasetName": "32908228",
+                  "fields": [
+                    {
+                      "name": "monthly(detected_at)",
+                      "expression": "DATE_TRUNC(\"MONTH\", `detected_at`)"
+                    },
+                    {
+                      "name": "monthly(detected_at)_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "monthly(detected_at)",
+                    "displayName": "MONTHLY(detected_at)",
+                    "queryName": "dashboards/01f1bf4db246155d96e04c6b8706c31e/datasets/01f1bf4fd15415ac8d3779f272c6143c_monthly(detected_at)"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 5,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "0e580bda",
+            "queries": [
+              {
+                "name": "dashboards/01f1bf4db246155d96e04c6b8706c31e/datasets/01f1bf4fd15415ac8d3779f272c6143c_check_type",
+                "query": {
+                  "datasetName": "32908228",
+                  "fields": [
+                    {
+                      "name": "check_type",
+                      "expression": "`check_type`"
+                    },
+                    {
+                      "name": "check_type_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "check_type",
+                    "queryName": "dashboards/01f1bf4db246155d96e04c6b8706c31e/datasets/01f1bf4fd15415ac8d3779f272c6143c_check_type"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 5,
+            "y": 0,
+            "width": 4,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "1aa91716",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "32908228",
+                  "fields": [
+                    {
+                      "name": "check_type",
+                      "expression": "`check_type`"
+                    },
+                    {
+                      "name": "source_file",
+                      "expression": "`source_file`"
+                    },
+                    {
+                      "name": "source_table",
+                      "expression": "`source_table`"
+                    },
+                    {
+                      "name": "detected_at",
+                      "expression": "`detected_at`"
+                    },
+                    {
+                      "name": "issues_detected",
+                      "expression": "`issues_detected`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "check_type"
+                  },
+                  {
+                    "fieldName": "source_file"
+                  },
+                  {
+                    "fieldName": "source_table"
+                  },
+                  {
+                    "fieldName": "detected_at"
+                  },
+                  {
+                    "fieldName": "issues_detected"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 9,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}

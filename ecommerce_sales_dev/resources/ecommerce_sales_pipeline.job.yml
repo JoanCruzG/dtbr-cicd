@@ -1,0 +1,71 @@
+resources:
+  jobs:
+    ecommerce_sales_pipeline:
+      name: ecommerce_sales_pipeline
+      parameters:
+        - name: storageName
+          default: ${var.storageName}
+        - name: credentialName
+          default: ${var.credentialName}
+        - name: externalLocationName
+          default: ${var.externalLocationName}
+        - name: catalog
+          default: ${var.catalog}
+      tasks:
+        - task_key: envPrep
+          notebook_task:
+            notebook_path: ../src/00_envPrep.sql
+        - task_key: ingestCustomers
+          depends_on: [{task_key: envPrep}]
+          notebook_task:
+            notebook_path: ../src/01_ingestCustomers.py
+            base_parameters:
+              directory: customer_master
+              table: customer_master
+        - task_key: ingestOrders
+          depends_on: [{task_key: envPrep}]
+          notebook_task:
+            notebook_path: ../src/01_ingestOrders.py
+            base_parameters:
+              directory: order_items
+              table: order_items
+        - task_key: ingestProducts
+          depends_on: [{task_key: envPrep}]
+          notebook_task:
+            notebook_path: ../src/01_ingestProducts.py
+            base_parameters:
+              directory: product_catalog
+              table: product_catalog
+        - task_key: ingestSales
+          depends_on: [{task_key: envPrep}]
+          notebook_task:
+            notebook_path: ../src/01_ingestSales.py
+            base_parameters:
+              directory: ecommerce_sales
+              table: ecommerce_sales
+        - task_key: transformSales
+          depends_on: [{task_key: ingestCustomers}, {task_key: ingestOrders}, {task_key: ingestProducts}, {task_key: ingestSales}]
+          notebook_task:
+            notebook_path: ../src/02_transformSales.py
+            base_parameters:
+              directory: ecommerce_sales_transformed
+              table: ecommerce_sales_transformed
+              source_schema: bronze
+              sink_schema: silver
+        - task_key: loadSales
+          depends_on: [{task_key: transformSales}]
+          notebook_task:
+            notebook_path: ../src/03_loadSales.py
+            base_parameters:
+              directory: ecommerce_sales_summary
+              table: ecommerce_sales_summary
+              source_schema: silver
+              sink_schema: gold
+        - task_key: grants
+          depends_on: [{task_key: loadSales}]
+          notebook_task:
+            notebook_path: ../src/04_grants.sql
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "5"
